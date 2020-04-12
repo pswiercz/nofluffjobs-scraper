@@ -34,56 +34,59 @@ def save_to_html(data):
 
 def get_offer(url):
 	# url = 'https://nofluffjobs.com/job/data-engineer-wikipedia-objectstyle-warszawa-gyghqyga'
-	html = request.urlopen(url)
-	sel = Selector(text=html.read(), type="html")
+	try:
+		html = request.urlopen(url)
+		sel = Selector(text=html.read(), type="html")
+	except:
+		print(url)
 
 	try:
 		must_have_xpath = '//nfj-posting-requirements//h3[text()="Must have"]//parent::*//text()'
 		must_have = [item.strip() for item in sel.xpath(must_have_xpath).getall()[1:]]
 	except:
-		print('must_have')
+		# print('must_have')
 		must_have = None
 
 	try:
 		nice_to_have_xpath = '//nfj-posting-requirements//h3[text()="Nice to have"]//parent::*//text()'
 		nice_to_have = [item.strip() for item in sel.xpath(nice_to_have_xpath).getall()[1:]]
 	except:
-		print('nice_to_have')
+		# print('nice_to_have')
 		nice_to_have = None
 
 	try:
 		work_methodology_xpath = '//nfj-posting-methodologies//div[@class="col-sm-6 d-flex align-items-center"]//text()'
 		work_methodology = [item.strip() for item in sel.xpath(work_methodology_xpath).getall()]
 	except:
-		print('work_methodology')
+		# print('work_methodology')
 		work_methodology = None
 
 	try:
 		equipment_supplied_xpath = '//nfj-posting-benefits//div[1]//text()'
 		equipment_supplied = [item.strip() for item in sel.xpath(equipment_supplied_xpath).getall()]
 	except:
-		print('equipment_supplied')
+		# print('equipment_supplied')
 		equipment_supplied = None
 
 	try:
-		specs_xpath = '//nfj-posting-specs//div//div[2]//text()'
+		specs_xpath = '//nfj-posting-specs//div//div[1]//text()'
 		specs = [item.strip() for item in sel.xpath(specs_xpath).getall()]
 	except:
-		print('specs')
+		# print('specs')
 		specs = None
 
 	try:
 		perks_in_the_office_xpath = '//nfj-posting-perks//h3[text()="Perks in the office"]//parent::*//text()'
 		perks_in_the_office = [item.strip() for item in sel.xpath(perks_in_the_office_xpath).getall()[1:]]
 	except:
-		print('perks_in_the_office')
+		# print('perks_in_the_office')
 		perks_in_the_office = None
 
 	try:
 		benefits_xpath = '//nfj-posting-perks//h3[text()="Benefits"]//parent::*//text()'
 		benefits = [item.strip() for item in sel.xpath(benefits_xpath).getall()[1:]]
 	except:
-		print('benefits')
+		# print('benefits')
 		benefits = None
 		pass
 
@@ -105,15 +108,21 @@ column_names = ['must_have', 'nice_to_have', 'work_methodology',
 				'benefits', 'url']
 offers_df = pd.DataFrame(columns = column_names)
 
-urls=['https://nofluffjobs.com/job/cloud-infrastructure-engineer-hn-global-business-services-center-krakow-krakow-4cenlxct',
-	   'https://nofluffjobs.com/job/mid-sr-java-developer-harvey-nash-technology-warszawa-lyfbpucr']
+# urls=['https://nofluffjobs.com/job/cloud-infrastructure-engineer-hn-global-business-services-center-krakow-krakow-4cenlxct',
+# 	   'https://nofluffjobs.com/job/mid-sr-java-developer-harvey-nash-technology-warszawa-lyfbpucr']
+
+with open('offers_url.txt', 'r') as f:
+	urls = [url.replace('\n', '') for url in f.readlines()]
+
+# print(urls)
+
 
 for url in tqdm(urls):
 	# offer = get_offer()
 
 	offers_df = offers_df.append(get_offer(url), ignore_index = True)
-	time.sleep(1)
+	time.sleep(2)
 
 
-print(offers_df)
+# print(offers_df)
 offers_df.to_csv('text.csv', mode='w', header=True, sep=';')
