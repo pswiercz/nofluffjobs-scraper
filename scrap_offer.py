@@ -11,8 +11,8 @@ work_methodology_category = ['Integration tests', 'Unit tests', 'Tester', 'Agile
 'Workshops', 'e2e tests', 'Commit on the first day', 'One command build possible', 'Up and running within 2h', 
 'High level and low level designs', 'Feature development and porting', 'Regression testing', 
 'UAT testing', 'Agile Testing', 'Manual tests', 'Database', 'Virtualization', 'Cloud infrastructure', 
-'Operating system', 'Databases', 'Network virtualization', 'Provisioning', 'Networking hardware', 'Security', 
-'Application stack', 'Operating systems']
+'Databases', 'Network virtualization', 'Provisioning', 'Networking hardware', 'Security', 
+'Application stack']
 
 equipment_supplied_category = ['Operating System', 'Computer', 'Monitors']
 
