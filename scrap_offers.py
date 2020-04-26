@@ -14,7 +14,7 @@ from xpath_list import *
 
 MAX_100_PAGES = False
 
-# URLS_FILE_NAME = '2_urls_python job for mid_2020-04-25_18-01-48.txt' 
+# URLS_FILE_NAME = '3_urls_python job for mid_2020-04-26_18-22-47.txt' 
 URLS_FILE_NAME = None # None for newest file
 
 
@@ -42,10 +42,9 @@ class OfferListsSpider(scrapy.Spider):
                 item = item.replace('\t', '')
                 self.offer_data[key] = item.lstrip().rstrip()
 
-        # print(self.offer_data)
         self.offer_data['url'] = url
 
-        # creating data frame, adding offer data and adding to csv one row
+        # creating data frame, adding offer data and adding to csv one row 
         self.offers_df = pd.DataFrame(columns = column_names)
         self.offers_df = self.offers_df.append(self.offer_data, ignore_index=True)
         self.offers_df.index = [self.df_index]
