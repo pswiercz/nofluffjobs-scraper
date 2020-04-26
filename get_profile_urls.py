@@ -2,21 +2,31 @@ import time
 import datetime
 from datetime import date
 from os import listdir
+import scrapy
+from urllib import request
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
-from scrapy import Selector
-from urllib import request
+
 
 MAX_100_PAGES = False
+# PROFILE_NAME = 'python job in warsaw'
 PROFILE_NAME = 'javascript in warsaw for senior'
 
-class url(scrapy.Item):
-    urls = scrapy.Field()
+class url_item(scrapy.Item):
+    url = scrapy.Field()
 
-class LinkListsSpider(scrapy.Spider):
+class UrlListSpider(scrapy.Spider):
+    name = 'url_lists'
 
+    def parse(self, response):
+        xpath = '//nfj-search-results//nfj-postings-list//nfj-postings-item/a/@href'
+        selection = response.xpath(xpath)
+        for s in selection:
+            l = url_item()
+            l['url'] = s.get()
+            yield dict(l)
 
 def get_profile(profile_selected):
 	with open('profiles.txt', 'r') as file_profiles:
@@ -110,7 +120,6 @@ def set_more_custom(more_custom_items, seniority_items):
 				time.sleep(1)
 
 		driver.find_element_by_xpath('//nfj-filters-wrapper//button[text()=" Apply "]').click()
-# 	print(drop)
 
 def accept_coockies():
 	try:
@@ -126,17 +135,14 @@ def change_lang():
 
 def get_urls():
 	offers_url = []
+	page_number = 1
+	ins = UrlListSpider()
 
 	while True:
 		sel = Selector(text=driver.page_source, type="html")
-		xpath = '//nfj-search-results//nfj-postings-list//nfj-postings-item/a/@href'
-		offers_url += sel.xpath(xpath).getall()
-		number_of_urls = len(offers_url)
-
-		# to stop getting unnecessary pages if MAX_100_PAGES is true
-		if MAX_100_PAGES and number_of_urls >= 100:
-			print('break')
-			break
+		gen = ins.parse(sel)
+		for item in gen:
+			offers_url.append(item['url'])
 
 		try: # move to next page
 			driver.find_element_by_xpath('//nfj-main-loader//nfj-search-results//div//li[@class="page-item"]\
@@ -144,6 +150,11 @@ def get_urls():
 			time.sleep(2)
 		except:
 			break
+
+		# stop moving to next page if MAX_100_PAGES is True
+		if page_number > 4 and MAX_100_PAGES:
+			break
+		page_number += 1
 
 	return offers_url
 
@@ -185,7 +196,7 @@ if __name__ == '__main__':
 	change_lang()
 	time.sleep(1)
 
-	# 
+	# set up search form
 	set_technology(profile['technology'])
 	set_location(profile['location'])
 	set_job_category(profile['category'])
@@ -195,10 +206,9 @@ if __name__ == '__main__':
 
 	# check if page display any offer
 	try:
-		print(driver.find_element_by_xpath('//nfj-no-offers-found-header//h2[text()=" No job offers found. "]').get_attribute('innerHTML'))
+		driver.find_element_by_xpath('//nfj-no-offers-found-header//h2[text()=" No job offers found. "]').get_attribute('innerHTML')
+		print('no offers has been found')
 	except:
 		accept_coockies()
-		print('page is ok')
-
 		# save urls file
 		save_urls(get_urls(), profile['profile_name'])

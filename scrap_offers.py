@@ -4,7 +4,6 @@ from urllib import request
 import pandas as pd
 from os import listdir
 from tqdm import tqdm
-
 import datetime
 import time
 from datetime import date
@@ -12,7 +11,7 @@ from datetime import date
 from column_names import column_names
 from class_items import Offer
 from xpath_list import *
- 
+
 MAX_100_PAGES = False
 
 # URLS_FILE_NAME = '2_urls_python job for mid_2020-04-25_18-01-48.txt' 
@@ -34,17 +33,16 @@ class OfferListsSpider(scrapy.Spider):
         gen = self.parse(sel)
 
         self.offer_data = dict(next(gen))
-        print(self.offer_data)
 
         # cleaning data
         for key, item in self.offer_data.items():
             if item:
                 if '\r' in item:
                     item = ''.join(item.splitlines())
-                    item = item.replace('\t', '')
+                item = item.replace('\t', '')
                 self.offer_data[key] = item.lstrip().rstrip()
 
-        print(self.offer_data)
+        # print(self.offer_data)
         self.offer_data['url'] = url
 
         # creating data frame, adding offer data and adding to csv one row
@@ -153,15 +151,15 @@ class OfferListsSpider(scrapy.Spider):
         yield o
 
 def get_urls(file_to_get = URLS_FILE_NAME):
-    if file_to_get:
+    if file_to_get: # if specific name of urls file
         try:
             with open(f'urls/{file_to_get}', 'r') as f:
                 urls = [url.replace('\n', '') for url in f.readlines()]
             return urls, file_to_get
         except:
-            print('given file with urls does not exist')
+            print('given urls file does not exist')
 
-    else:
+    else: # if None - newest urls file
         urls_names = listdir('urls')
         max_number = []
         for item in urls_names:
@@ -188,16 +186,11 @@ def get_urls(file_to_get = URLS_FILE_NAME):
                 continue
 
 if __name__ == '__main__':
-    # print(get_urls())
     try:
-        urls, profile_name = get_urls()
-        print(urls)
-        print(profile_name)
-        
+        urls, profile_name = get_urls()       
     except:
         print('no url file exist')
 
-    # print(urls)
     if urls:
         ins = OfferListsSpider(profile_name)    
         for i, url in enumerate(tqdm(urls)):
@@ -206,40 +199,3 @@ if __name__ == '__main__':
 
             ins.get_offer(url)
             time.sleep(2)
-
-
-
-
-
-
-
-
-    # onlyfiles = [f for f in listdir(.) if isfile(join(mypath, f))]
-    # print(onlyfiles)
-
-    # with open('urls/1', 'r') as f:
-    #     print(f.readlines())
-
-    # url = 'https://nofluffjobs.com/job/frontend-developer-mindbox-krakow-re0eq0hd' # 2 salary
-    # url2 = 'https://nofluffjobs.com/job/software-engineer-privitar-warsaw-rnssdlbi' 
-    # ins = OfferListsSpider()
-    # ins.get_offer(url2)
-    # time.sleep(1)
-
-
- # if which_to_get == 'Newest':
-
-    #     date_list = []
-    #     time_list = []
-    #     # listdir('./urls')
-    #     url = listdir('./urls')[0]
-
-    #     *_, date, time = url.split('_') 
-    #     date_list.append(date)
-    #     time_list.append(time[:-4])
-
-    #     print(date_list, time_list)
-
-    #     sorted(data,
-    #    key=lambda each_dict: (datetime.strptime(each_dict['date'], '%d-%b-%Y'),
-    #                           datetime.strptime(each_dict['time'], '%H:%M:%S.%f'))

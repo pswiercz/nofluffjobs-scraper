@@ -68,15 +68,12 @@ security_xpath = f'//nfj-posting-methodologies//div//span[re:test(text(), ".{wor
 application_stack_xpath = f'//nfj-posting-methodologies//div//span[re:test(text(), ".{work_methodology_category[35]}.")]//parent::*//parent::*//dd//text()'
 operating_systems_xpath = f'//nfj-posting-methodologies//div//span[re:test(text(), ".{work_methodology_category[36]}.")]//parent::*//parent::*//dd//text()'
 
-# operating_system_xpath = f'//nfj-posting-benefits//div[re:test(text(), ".{equipment_supplied_category[0]}.")]//parent::*//svg-icon-sprite//@class'
 operating_system_1_xpath = f'//nfj-posting-benefits//div[re:test(text(), ".{equipment_supplied_category[0]}.")]//parent::*//svg-icon-sprite/@class'
 operating_system_2_xpath = f'//nfj-posting-benefits//div[re:test(text(), ".{equipment_supplied_category[0]}.")]//parent::*//svg-icon-sprite/@src'
 computer_xpath = f'//nfj-posting-benefits//div//div[re:test(text(), ".{equipment_supplied_category[1]}.")]//parent::*//div[2]//text()'
 monitors_xpath = f'//nfj-posting-benefits//div//div[re:test(text(), ".{equipment_supplied_category[2]}.")]//parent::*//div[2]//text()'
 
 # specs_category
-# job_profile_xpath = f'//nfj-posting-specs//div[re:test(text(), ".{specs_category[0]}.")]//parent::*//div[2]//text()'
-
 job_profile_xpath = f'//nfj-posting-specs//div[re:test(text(), ".{specs_category[0]}.")]//parent::*//div[2]//text()'
 start_xpath = f'//nfj-posting-specs//div[re:test(text(), ".{specs_category[1]}.")]//parent::*//div[2]//text()'
 contract_duration_xpath = f'//nfj-posting-specs//div[re:test(text(), ".{specs_category[2]}.")]//parent::*//div[2]//text()'

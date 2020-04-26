@@ -19,4 +19,5 @@ column_names = ['url', 'offer_name', 'company', 'company_size', 'job_location', 
 'flexible_hours', 'travel_involved', 'freedom_to_choose_tools', 'relocation_package', 'remote_work',
 'open_minded_developers_in_team', 'work_with_international_client',
 
+# perks/benefits
 'perks_in_the_office', 'benefits']
