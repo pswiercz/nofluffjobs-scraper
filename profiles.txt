@@ -5,17 +5,17 @@ category:
 more_custom:  
 seniority:
 -
-profile_name:javascript in warsaw for senior
+profile_name:javascript in warsaw for senior and experts
 technology:javascript
 location:warsaw
 category:
 more_custom:
-seniority:Senior
+seniority:Senior, Expert
 -
-profile_name:
-technology:
-location:
-category:
-more_custom:
-seniority:
+profile_name:java in warsaw for expert and serior with gym
+technology:java
+location:warszawa
+category:Backend
+more_custom:Gym
+seniority:Expert, Senior
 -

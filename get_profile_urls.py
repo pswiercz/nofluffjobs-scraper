@@ -3,6 +3,7 @@ import datetime
 from datetime import date
 from os import listdir
 import scrapy
+from scrapy import Selector
 from urllib import request
 
 from selenium import webdriver
@@ -11,8 +12,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 
 MAX_100_PAGES = False
-# PROFILE_NAME = 'python job in warsaw'
-PROFILE_NAME = 'javascript in warsaw for senior'
+# PROFILE_NAME = 'java in warsaw for expert and serior with gym'
+PROFILE_NAME = 'python job in warsaw'
 
 class url_item(scrapy.Item):
     url = scrapy.Field()
