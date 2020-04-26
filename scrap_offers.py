@@ -3,25 +3,28 @@ from scrapy import Selector
 from urllib import request
 import pandas as pd
 from os import listdir
+from tqdm import tqdm
 
 import datetime
 import time
 from datetime import date
 
-from tqdm import tqdm
 from column_names import column_names
-
-
 from class_items import Offer
 from xpath_list import *
  
 MAX_100_PAGES = False
 
+# URLS_FILE_NAME = '2_urls_python job for mid_2020-04-25_18-01-48.txt' 
+URLS_FILE_NAME = None # None for newest file
+
+
 class OfferListsSpider(scrapy.Spider):
-    name = '_lists'
-    def __init__(self):
+    name = 'offer_spider'
+    def __init__(self, profile_name):
         t = time.localtime()
-        self.file_name = f"offers//offers_{date.today()}_{time.strftime('%H-%M-%S', t)}.csv"
+        # creating empty csv with header
+        self.file_name = f"offers//offers_{profile_name}_{date.today()}_{time.strftime('%H-%M-%S', t)}.csv"
         pd.DataFrame(columns = column_names).to_csv(self.file_name, mode='w', header=True, sep=';')
         self.df_index = 0
 
@@ -31,17 +34,20 @@ class OfferListsSpider(scrapy.Spider):
         gen = self.parse(sel)
 
         self.offer_data = dict(next(gen))
+        print(self.offer_data)
 
+        # cleaning data
         for key, item in self.offer_data.items():
             if item:
                 if '\r' in item:
                     item = ''.join(item.splitlines())
+                    item = item.replace('\t', '')
                 self.offer_data[key] = item.lstrip().rstrip()
 
+        print(self.offer_data)
         self.offer_data['url'] = url
 
-        print(self.offer_data)
-
+        # creating data frame, adding offer data and adding to csv one row
         self.offers_df = pd.DataFrame(columns = column_names)
         self.offers_df = self.offers_df.append(self.offer_data, ignore_index=True)
         self.offers_df.index = [self.df_index]
@@ -146,20 +152,54 @@ class OfferListsSpider(scrapy.Spider):
 
         yield o
 
-def get_urls(file_to_get = 'urls_sec_2020-04-20_21-39-55.txt'):
-    try:
-        with open(f'urls/{file_to_get}', 'r') as f:
-            urls = [url.replace('\n', '') for url in f.readlines()]
-        return urls
-    except:
-        print('given file with urls does not exist')
+def get_urls(file_to_get = URLS_FILE_NAME):
+    if file_to_get:
+        try:
+            with open(f'urls/{file_to_get}', 'r') as f:
+                urls = [url.replace('\n', '') for url in f.readlines()]
+            return urls, file_to_get
+        except:
+            print('given file with urls does not exist')
+
+    else:
+        urls_names = listdir('urls')
+        max_number = []
+        for item in urls_names:
+            num, *_ = item.split('_')
+            try:
+                num = int(num)
+            except:
+                continue
+
+            max_number.append(num)
+
+        max_number = max(max_number)
+
+        for item in urls_names:
+            num, _, profile_name, *_ = item.split('_')
+            try:
+                num = int(num)
+                if num == max_number:
+                    with open(f'urls/{item}', 'r') as f:
+                        urls = [url.replace('\n', '') for url in f.readlines()]
+                    return urls, profile_name
+
+            except:
+                continue
 
 if __name__ == '__main__':
     # print(get_urls())
-    urls = get_urls()
+    try:
+        urls, profile_name = get_urls()
+        print(urls)
+        print(profile_name)
+        
+    except:
+        print('no url file exist')
 
+    # print(urls)
     if urls:
-        ins = OfferListsSpider()    
+        ins = OfferListsSpider(profile_name)    
         for i, url in enumerate(tqdm(urls)):
             if i >= 100 and MAX_100_PAGES:
                 break

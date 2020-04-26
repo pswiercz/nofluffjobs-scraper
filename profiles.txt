@@ -1,0 +1,21 @@
+profile_name:python job in warsaw
+technology: python
+location:warszawa
+category:
+more_custom:  
+seniority:
+-
+profile_name:javascript in warsaw for senior
+technology:javascript
+location:warsaw
+category:
+more_custom:
+seniority:Senior
+-
+profile_name:
+technology:
+location:
+category:
+more_custom:
+seniority:
+-

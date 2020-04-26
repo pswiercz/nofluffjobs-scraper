@@ -1,6 +1,7 @@
 import time
 import datetime
 from datetime import date
+from os import listdir
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -9,12 +10,18 @@ from scrapy import Selector
 from urllib import request
 
 MAX_100_PAGES = False
+PROFILE_NAME = 'javascript in warsaw for senior'
+
+class url(scrapy.Item):
+    urls = scrapy.Field()
+
+class LinkListsSpider(scrapy.Spider):
+
 
 def get_profile(profile_selected):
 	with open('profiles.txt', 'r') as file_profiles:
 		all_profiles = file_profiles.read().splitlines()
 
-	# profile_selected = 'first'
 	profile = {'profile_name': '', 'technology': [], 'location': [], 'category': [], 'more_custom': [], 'seniority': []}
 	right_name = False
 
@@ -28,7 +35,7 @@ def get_profile(profile_selected):
 			p_key, p_value_raw = profiles_row.split(':') 
 			p_key = p_key.lstrip().rstrip()
 
-			if p_key == 'seniority':
+			if p_key == 'seniority': # validation of seniority category data
 				p_values = [item.lstrip().rstrip() if item.lstrip().rstrip() in ['Trainee', 'Junior', 'Mid', 'Senior', 'Expert'] 
 							else None for item in p_value_raw.split(',')]
 			else:  
@@ -39,10 +46,11 @@ def get_profile(profile_selected):
 
 def set_technology(category_items):
 	if category_items[0]:
-# 		# get to category menu
-		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()="Technology +"]//parent::*').click()
+		# get to category menu
+		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()="Technology"]//parent::*').click()
 		time.sleep(1)
 
+		# filling search form
 		for category in category_items:
 			driver.find_element_by_xpath('//nfj-filter-custom-control//input[@placeholder="Add custom"]').send_keys(category)
 			time.sleep(1)
@@ -53,10 +61,11 @@ def set_technology(category_items):
 
 def set_location(category_items):
 	if category_items[0]:
-# 		# get to category menu
-		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()=" Location +"]//parent::*').click()
+ 		# get to category menu
+		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()=" Location"]//parent::*').click()
 		time.sleep(1)
 
+		# filling search form
 		for category in category_items:
 			driver.find_element_by_xpath('//nfj-filter-custom-control//input[@placeholder="Add custom"]').send_keys(category)
 			time.sleep(1)
@@ -67,10 +76,11 @@ def set_location(category_items):
 
 def set_job_category(category_items):
 	if category_items[0]:
-# 		# get to category menu
-		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()="Category +"]//parent::*').click()
+ 		# get to category menu
+		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()="Category"]//parent::*').click()
 		time.sleep(1)
 
+		# filling search form
 		for category in category_items:
 			try:
 				driver.find_element_by_xpath(f'//ngb-popover-window//nfj-filters-wrapper//button[contains(text(), "{category}")]').click()
@@ -82,10 +92,11 @@ def set_job_category(category_items):
 
 def set_more_custom(more_custom_items, seniority_items):
 	if more_custom_items[0] or seniority_items[0]:
-# 		# get to category menu
-		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()="More +"]//parent::*').click()
+ 		# get to category menu
+		driver.find_element_by_xpath('//nfj-controls-toolbar//span[text()="More"]//parent::*').click()
 		time.sleep(1)
 
+		# filling search form
 		if more_custom_items[0]:
 			for item in more_custom_items:
 				driver.find_element_by_xpath('//nfj-filter-custom-control//input[@placeholder="Add custom"]').send_keys(item)
@@ -118,7 +129,7 @@ def get_urls():
 
 	while True:
 		sel = Selector(text=driver.page_source, type="html")
-		xpath = '//nfj-main-loader//nfj-postings-list//nfj-postings-item//a//@href'
+		xpath = '//nfj-search-results//nfj-postings-list//nfj-postings-item/a/@href'
 		offers_url += sel.xpath(xpath).getall()
 		number_of_urls = len(offers_url)
 
@@ -127,19 +138,36 @@ def get_urls():
 			print('break')
 			break
 
-		try:
+		try: # move to next page
 			driver.find_element_by_xpath('//nfj-main-loader//nfj-search-results//div//li[@class="page-item"]\
 										  //a[@aria-label="Next"]//parent::*').click()
 			time.sleep(2)
 		except:
 			break
 
-	# print(offers_url)
 	return offers_url
 
 def save_urls(urls, profile_name):
+	# Getting last index of urls file for new one
+	urls_names = listdir('urls')
+	max_number = []
+	for item in urls_names:
+		num, *_ = item.split('_')
+		try:
+			num = int(num)
+		except:
+			continue
+
+		max_number.append(num)
+
+	if max_number:
+		max_number = max(max_number) + 1
+	else:
+		max_number = 1
+
+	# saving url
 	t = time.localtime()
-	with open(f"urls//urls_{profile_name[0]}_{date.today()}_{time.strftime('%H-%M-%S', t)}.txt", 'w+') as f:
+	with open(f"urls//{max_number}_urls_{profile_name[0]}_{date.today()}_{time.strftime('%H-%M-%S', t)}.txt", 'w+') as f:
 		f.writelines(['https://nofluffjobs.com' + url + '\n' for url in urls])
 
 if __name__ == '__main__':
@@ -149,12 +177,15 @@ if __name__ == '__main__':
 	driver = webdriver.Remote(service.service_url)
 	driver.get(url)
 
-	profile = get_profile('python job in warsaw for juniors')
+	profile = get_profile(PROFILE_NAME)
 
 	time.sleep(2)
 	accept_coockies()
+	time.sleep(1)
 	change_lang()
+	time.sleep(1)
 
+	# 
 	set_technology(profile['technology'])
 	set_location(profile['location'])
 	set_job_category(profile['category'])
@@ -162,12 +193,12 @@ if __name__ == '__main__':
 
 	time.sleep(1)
 
-	# check if page dispaly any offer
+	# check if page display any offer
 	try:
 		print(driver.find_element_by_xpath('//nfj-no-offers-found-header//h2[text()=" No job offers found. "]').get_attribute('innerHTML'))
 	except:
 		accept_coockies()
 		print('page is ok')
 
-		# create 
+		# save urls file
 		save_urls(get_urls(), profile['profile_name'])
